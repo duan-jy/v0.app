@@ -108,93 +108,131 @@
             </div>
           </div>
 
-          <!-- Screenshots Section -->
+          <!-- Screenshots Section - Fixed 2 slots -->
           <div class="px-6 py-4 border-b border-border">
-            <div class="flex items-center justify-between mb-3">
-              <h3 class="text-sm font-bold text-foreground flex items-center gap-2">
-                <ImageIcon class="w-4 h-4 text-primary" />
-                检查图像
-                <span class="text-xs font-normal text-muted-foreground ml-1">
-                  (共 {{ store.screenshots.length }} 张)
-                </span>
-              </h3>
-              <button
-                class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
-                @click="addImageFromFile"
-              >
-                <Plus class="w-3.5 h-3.5" />
-                添加图片
-              </button>
-              <input
-                ref="fileInputRef"
-                type="file"
-                accept="image/*"
-                class="hidden"
-                @change="onFileSelected"
-              />
-            </div>
+            <h3 class="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+              <ImageIcon class="w-4 h-4 text-primary" />
+              检查图像
+              <span class="text-xs font-normal text-muted-foreground ml-1">(限2张)</span>
+            </h3>
 
-            <!-- Screenshots Grid -->
-            <div v-if="store.screenshots.length > 0" class="grid grid-cols-3 gap-4">
-              <div
-                v-for="shot in store.screenshots"
-                :key="shot.id"
-                class="group relative rounded-lg border border-border bg-muted/30 overflow-hidden"
-              >
-                <!-- Image -->
-                <div class="aspect-[4/3] bg-video-bg">
-                  <img
-                    :src="shot.dataUrl"
-                    :alt="shot.label"
-                    class="w-full h-full object-cover"
-                  />
-                </div>
+            <!-- Two Image Slots Grid -->
+            <div class="grid grid-cols-2 gap-4">
+              <!-- Slot 1 -->
+              <div class="relative rounded-lg border border-border bg-muted/30 overflow-hidden">
+                <template v-if="reportImages[0]">
+                  <!-- Image -->
+                  <div class="aspect-[4/3] bg-video-bg group">
+                    <img
+                      :src="reportImages[0].dataUrl"
+                      :alt="reportImages[0].label"
+                      class="w-full h-full object-cover"
+                    />
+                    <!-- Hover overlay -->
+                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      <button
+                        class="flex items-center justify-center w-9 h-9 rounded-full bg-white/90 text-foreground hover:bg-white transition-colors"
+                        title="预览"
+                        @click="previewImage(reportImages[0])"
+                      >
+                        <Eye class="w-4 h-4" />
+                      </button>
+                      <button
+                        class="flex items-center justify-center w-9 h-9 rounded-full bg-primary/90 text-white hover:bg-primary transition-colors"
+                        title="替换图片"
+                        @click="replaceSlot(0)"
+                      >
+                        <RefreshCw class="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  <!-- Label -->
+                  <div class="px-3 py-2 border-t border-border bg-card">
+                    <input
+                      :value="reportImages[0].label"
+                      class="w-full text-xs text-foreground bg-transparent border-none outline-none"
+                      placeholder="图片标签"
+                      @change="updateLabel(reportImages[0].id, ($event.target as HTMLInputElement).value)"
+                    />
+                  </div>
+                </template>
+                <!-- Empty slot -->
+                <template v-else>
+                  <div
+                    class="aspect-[4/3] flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors"
+                    @click="selectSlot(0)"
+                  >
+                    <div class="w-12 h-12 rounded-full bg-secondary flex items-center justify-center mb-2">
+                      <Plus class="w-6 h-6 text-muted-foreground" />
+                    </div>
+                    <p class="text-sm text-muted-foreground">图片 1</p>
+                    <p class="text-xs text-muted-foreground/60 mt-0.5">点击添加或从工作站截图</p>
+                  </div>
+                </template>
+              </div>
 
-                <!-- Hover overlay with actions -->
-                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                  <button
-                    class="flex items-center justify-center w-8 h-8 rounded-full bg-white/90 text-foreground hover:bg-white transition-colors"
-                    title="预览"
-                    @click="previewImage(shot)"
+              <!-- Slot 2 -->
+              <div class="relative rounded-lg border border-border bg-muted/30 overflow-hidden">
+                <template v-if="reportImages[1]">
+                  <!-- Image -->
+                  <div class="aspect-[4/3] bg-video-bg group">
+                    <img
+                      :src="reportImages[1].dataUrl"
+                      :alt="reportImages[1].label"
+                      class="w-full h-full object-cover"
+                    />
+                    <!-- Hover overlay -->
+                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      <button
+                        class="flex items-center justify-center w-9 h-9 rounded-full bg-white/90 text-foreground hover:bg-white transition-colors"
+                        title="预览"
+                        @click="previewImage(reportImages[1])"
+                      >
+                        <Eye class="w-4 h-4" />
+                      </button>
+                      <button
+                        class="flex items-center justify-center w-9 h-9 rounded-full bg-primary/90 text-white hover:bg-primary transition-colors"
+                        title="替换图片"
+                        @click="replaceSlot(1)"
+                      >
+                        <RefreshCw class="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  <!-- Label -->
+                  <div class="px-3 py-2 border-t border-border bg-card">
+                    <input
+                      :value="reportImages[1].label"
+                      class="w-full text-xs text-foreground bg-transparent border-none outline-none"
+                      placeholder="图片标签"
+                      @change="updateLabel(reportImages[1].id, ($event.target as HTMLInputElement).value)"
+                    />
+                  </div>
+                </template>
+                <!-- Empty slot -->
+                <template v-else>
+                  <div
+                    class="aspect-[4/3] flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors"
+                    @click="selectSlot(1)"
                   >
-                    <Eye class="w-4 h-4" />
-                  </button>
-                  <button
-                    class="flex items-center justify-center w-8 h-8 rounded-full bg-white/90 text-foreground hover:bg-white transition-colors"
-                    title="替换"
-                    @click="replaceImage(shot.id)"
-                  >
-                    <RefreshCw class="w-4 h-4" />
-                  </button>
-                  <button
-                    class="flex items-center justify-center w-8 h-8 rounded-full bg-destructive/90 text-white hover:bg-destructive transition-colors"
-                    title="删除"
-                    @click="removeImage(shot.id)"
-                  >
-                    <Trash2 class="w-4 h-4" />
-                  </button>
-                </div>
-
-                <!-- Label -->
-                <div class="px-2 py-1.5 border-t border-border bg-card">
-                  <input
-                    :value="shot.label"
-                    class="w-full text-xs text-foreground bg-transparent border-none outline-none"
-                    @change="updateLabel(shot.id, ($event.target as HTMLInputElement).value)"
-                  />
-                </div>
+                    <div class="w-12 h-12 rounded-full bg-secondary flex items-center justify-center mb-2">
+                      <Plus class="w-6 h-6 text-muted-foreground" />
+                    </div>
+                    <p class="text-sm text-muted-foreground">图片 2</p>
+                    <p class="text-xs text-muted-foreground/60 mt-0.5">点击添加或从工作站截图</p>
+                  </div>
+                </template>
               </div>
             </div>
 
-            <!-- Empty state -->
-            <div
-              v-else
-              class="flex flex-col items-center justify-center py-8 text-muted-foreground border-2 border-dashed border-border rounded-lg"
-            >
-              <ImageIcon class="w-10 h-10 mb-2 opacity-40" />
-              <p class="text-sm">暂无检查图像</p>
-              <p class="text-xs mt-1">请在工作站进行截图或点击上方添加图片</p>
-            </div>
+            <!-- Hidden file input -->
+            <input
+              ref="fileInputRef"
+              type="file"
+              accept="image/*"
+              class="hidden"
+              @change="onFileSelected"
+            />
           </div>
 
           <!-- Findings Section -->
@@ -289,19 +327,12 @@
       </div>
     </Teleport>
 
-    <!-- Hidden file input for replace -->
-    <input
-      ref="replaceInputRef"
-      type="file"
-      accept="image/*"
-      class="hidden"
-      @change="onReplaceFileSelected"
-    />
+    
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useWorkstationStore } from '@/app/stores/workstation'
 import HeaderBar from '@/app/components/HeaderBar.vue'
@@ -320,7 +351,6 @@ import {
   Plus,
   Eye,
   RefreshCw,
-  Trash2,
   X,
 } from 'lucide-vue-next'
 
@@ -329,9 +359,11 @@ const doctorName = ref('王医生')
 const reportDate = ref('2026-03-06')
 
 const fileInputRef = ref<HTMLInputElement | null>(null)
-const replaceInputRef = ref<HTMLInputElement | null>(null)
 const previewShot = ref<Screenshot | null>(null)
-const replaceTargetId = ref<string | null>(null)
+const currentSlot = ref<number>(0) // 0 or 1
+
+// Only show first 2 screenshots in report
+const reportImages = computed(() => store.screenshots.slice(0, 2))
 
 function generateAIReport() {
   store.examFinding.description =
@@ -340,7 +372,15 @@ function generateAIReport() {
     '1. 甲状腺右叶实性结节（TI-RADS 3类），考虑良性可能性大，建议6个月后复查超声。\n2. 甲状腺左叶囊性结节（TI-RADS 2类），考虑良性，建议定期随访。'
 }
 
-function addImageFromFile() {
+// Select slot to add new image
+function selectSlot(slot: number) {
+  currentSlot.value = slot
+  fileInputRef.value?.click()
+}
+
+// Replace existing image in slot
+function replaceSlot(slot: number) {
+  currentSlot.value = slot
   fileInputRef.value?.click()
 }
 
@@ -354,38 +394,21 @@ function onFileSelected(event: Event) {
     const dataUrl = e.target?.result as string
     if (dataUrl) {
       const organ = store.currentPatient?.examPart || '超声'
-      const label = `${organ} 图片 ${store.screenshots.length + 1}`
-      store.addScreenshot(dataUrl, label, organ)
+      const label = `${organ} 图片 ${currentSlot.value + 1}`
+      
+      // Check if slot already has an image
+      const existingImage = reportImages.value[currentSlot.value]
+      if (existingImage) {
+        // Replace existing image
+        store.replaceScreenshot(existingImage.id, dataUrl)
+      } else {
+        // Add new image
+        store.addScreenshot(dataUrl, label, organ)
+      }
     }
   }
   reader.readAsDataURL(file)
   input.value = '' // Reset input
-}
-
-function replaceImage(id: string) {
-  replaceTargetId.value = id
-  replaceInputRef.value?.click()
-}
-
-function onReplaceFileSelected(event: Event) {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
-  if (!file || !replaceTargetId.value) return
-
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    const dataUrl = e.target?.result as string
-    if (dataUrl && replaceTargetId.value) {
-      store.replaceScreenshot(replaceTargetId.value, dataUrl)
-    }
-    replaceTargetId.value = null
-  }
-  reader.readAsDataURL(file)
-  input.value = '' // Reset input
-}
-
-function removeImage(id: string) {
-  store.removeScreenshot(id)
 }
 
 function previewImage(shot: Screenshot) {
