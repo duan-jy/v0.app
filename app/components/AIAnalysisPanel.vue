@@ -599,7 +599,11 @@ function generateDiagnosis() {
 </script>
 
 <style scoped>
+@reference "@/app/globals.css";
+
 .field-input {
-  @apply w-full mt-0.5 px-1.5 py-1 rounded border border-input bg-background text-foreground text-[11px] focus:outline-none focus:ring-1 focus:ring-ring;
+  @apply w-full px-1.5 py-1 rounded border border-input bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring;
+  margin-top: 0.125rem;
+  font-size: 11px;
 }
 </style>
