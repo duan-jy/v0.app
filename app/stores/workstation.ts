@@ -18,22 +18,72 @@ export const useWorkstationStore = defineStore('workstation', () => {
   // AI
   const connectionStatus = ref<ConnectionStatus>('未连接')
   const aiDetections = ref<AIDetection[]>([
-    { id: '1', organ: '甲状腺', location: '右叶中部', size: '8.2mm x 5.1mm', confidence: 0.94, type: '低回声结节' },
-    { id: '2', organ: '甲状腺', location: '左叶下极', size: '4.5mm x 3.2mm', confidence: 0.87, type: '囊性结节' },
+    { 
+      id: '1', 
+      organ: '甲状腺', 
+      location: '右叶中部', 
+      size: '8.2mm x 5.1mm x 4.8mm', 
+      confidence: 0.94, 
+      type: '实性结节',
+      grade: '4a',
+      shape: '不规则',
+      aspectRatio: '小于1',
+      margin: '模糊',
+      echoPattern: '低回声',
+      posteriorFeature: '无改变',
+      calcification: '微钙化',
+      bloodFlow: '内部血供',
+      bloodRichness: '较丰富',
+      capsuleInvasion: false,
+      lymphNode: '未见异常'
+    },
+    { 
+      id: '2', 
+      organ: '甲状腺', 
+      location: '左叶下极', 
+      size: '4.5mm x 3.2mm x 3.0mm', 
+      confidence: 0.87, 
+      type: '囊性结节',
+      grade: '2',
+      shape: '规则',
+      aspectRatio: '小于1',
+      margin: '完整',
+      echoPattern: '无回声',
+      posteriorFeature: '增强',
+      calcification: '无',
+      bloodFlow: '无血供',
+      bloodRichness: '不丰富',
+      capsuleInvasion: false,
+      lymphNode: ''
+    },
   ])
 
   // Findings
   const examFinding = ref<ExamFinding>({
     organ: '甲状腺',
     location: '右叶中部',
-    size: '8.2mm x 5.1mm',
+    size: '8.2mm x 5.1mm x 4.8mm',
     echoFeature: '低回声',
-    boundary: '边界清晰',
-    bloodFlow: '周边可见少许血流信号',
-    description: '甲状腺右叶中部可见一低回声结节，大小约8.2mm x 5.1mm，边界清晰，形态规则，内部回声均匀，周边可见少许血流信号。TI-RADS 3类。'
+    boundary: '边界模糊',
+    bloodFlow: '内部可见点状血流信号',
+    description: '',
+    thyroid: {
+      leftLobeSize: '48mm x 18mm x 16mm',
+      rightLobeSize: '50mm x 20mm x 18mm',
+      isthmusThickness: '3mm',
+      capsuleIntegrity: '光整',
+      internalEcho: '不均匀',
+      bloodFlowPattern: '正常',
+      parathyroidStatus: '未见异常',
+      lymphNodeStatus: '未见异常肿大淋巴结',
+      lymphNodeDetail: ''
+    },
+    tiradsVersion: 'C-TIRADS',
+    tiradsCategory: '4a',
+    recommendation: '建议行FNA细针穿刺活检'
   })
 
-  const diagnosis = ref('考虑甲状腺良性结节（TI-RADS 3类），建议6个月后复查。')
+  const diagnosis = ref('')
   const isCritical = ref(false)
   const examResult = ref<'阳性' | '阴性'>('阳性')
 
