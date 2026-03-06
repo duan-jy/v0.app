@@ -1,62 +1,61 @@
 <template>
-  <div class="flex flex-col h-full bg-panel-bg rounded-xl overflow-hidden">
-    <!-- Scrollable Content Area -->
-    <div class="flex-1 overflow-y-auto min-h-0">
-      <!-- Section 1: AI Detection Results -->
-      <div class="p-3 border-b border-border">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-xs font-bold text-foreground flex items-center gap-1.5">
-            <BrainCircuit class="w-3.5 h-3.5 text-primary" />
-            AI检测结果
-          </h3>
-          <span v-if="store.aiDetections.length > 0" class="px-1.5 py-0.5 text-[10px] rounded-full bg-primary/10 text-primary font-medium">
-            {{ store.aiDetections.length }}个
-          </span>
-        </div>
+  <div class="flex flex-col h-full gap-3">
+    <!-- Card 1: AI Detection Results -->
+    <div class="bg-panel-bg rounded-xl shadow-sm border border-border overflow-hidden flex flex-col min-h-0 flex-1">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
+        <h2 class="text-sm font-bold text-foreground flex items-center gap-2">
+          <BrainCircuit class="w-4 h-4 text-primary" />
+          AI检测结果
+        </h2>
+        <span v-if="store.aiDetections.length > 0" class="px-2 py-0.5 text-xs rounded-full bg-primary/10 text-primary font-medium">
+          {{ store.aiDetections.length }}个
+        </span>
+      </div>
 
-        <!-- Lesion Summary -->
-        <div v-if="store.aiDetections.length > 0" class="flex items-center gap-2 mb-2 px-2 py-1 bg-secondary/50 rounded text-[10px]">
-          <span class="text-muted-foreground">共 <span class="font-bold text-foreground">{{ store.aiDetections.length }}</span> 处病灶</span>
-          <span class="text-border">|</span>
-          <span class="text-muted-foreground">最高:</span>
-          <span class="px-1 py-0.5 rounded font-medium" :class="getGradeClass(highestGrade)">
-            {{ highestGrade || '-' }}
-          </span>
-        </div>
+      <!-- Lesion Summary -->
+      <div v-if="store.aiDetections.length > 0" class="flex items-center gap-2 px-4 py-2 border-b border-border bg-secondary/30 shrink-0">
+        <span class="text-xs text-muted-foreground">共 <span class="font-bold text-foreground">{{ store.aiDetections.length }}</span> 处病灶</span>
+        <span class="text-border">|</span>
+        <span class="text-xs text-muted-foreground">最高分级:</span>
+        <span class="px-1.5 py-0.5 rounded text-xs font-medium" :class="getGradeClass(highestGrade)">
+          {{ highestGrade || '-' }}
+        </span>
+      </div>
 
-        <!-- Compact Detection List -->
-        <div class="space-y-1">
+      <!-- Detection List -->
+      <div class="flex-1 overflow-y-auto px-3 py-2">
+        <div class="space-y-1.5">
           <div
             v-for="(det, idx) in store.aiDetections"
             :key="det.id"
-            class="border border-border rounded bg-background overflow-hidden"
+            class="border border-border rounded-lg bg-background overflow-hidden"
           >
             <!-- Header -->
             <div 
-              class="flex items-center justify-between px-2 py-1 cursor-pointer hover:bg-secondary/30"
+              class="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-secondary/30"
               @click="toggleExpand(det.id)"
             >
-              <div class="flex items-center gap-1 min-w-0 text-[11px]">
-                <span class="text-muted-foreground">#{{ idx + 1 }}</span>
-                <span class="text-foreground truncate">{{ det.location || '未定位' }}</span>
+              <div class="flex items-center gap-2 min-w-0 text-xs">
+                <span class="text-muted-foreground font-mono">#{{ idx + 1 }}</span>
+                <span class="text-foreground font-medium truncate">{{ det.location || '未定位' }}</span>
                 <span class="text-muted-foreground truncate">{{ det.size }}</span>
               </div>
-              <div class="flex items-center gap-1 shrink-0">
-                <span v-if="det.grade" class="px-1 py-0.5 rounded text-[10px] font-medium" :class="getGradeClass(det.grade)">
+              <div class="flex items-center gap-2 shrink-0">
+                <span v-if="det.grade" class="px-1.5 py-0.5 rounded text-xs font-medium" :class="getGradeClass(det.grade)">
                   {{ det.grade }}
                 </span>
-                <ChevronDown class="w-3 h-3 text-muted-foreground transition-transform" :class="{ 'rotate-180': expandedIds.has(det.id) }" />
+                <ChevronDown class="w-4 h-4 text-muted-foreground transition-transform" :class="{ 'rotate-180': expandedIds.has(det.id) }" />
               </div>
             </div>
             <!-- Expanded -->
-            <div v-if="expandedIds.has(det.id)" class="px-2 py-1.5 border-t border-border bg-secondary/20">
-              <div class="grid grid-cols-4 gap-1 text-[10px]">
+            <div v-if="expandedIds.has(det.id)" class="px-3 py-2 border-t border-border bg-secondary/20">
+              <div class="grid grid-cols-4 gap-2 text-xs">
                 <div>
                   <label class="text-muted-foreground">位置</label>
                   <input v-model="det.location" class="field-input" />
                 </div>
                 <div>
-                  <label class="text-muted-foreground">大小</label>
+                  <label class="text-muted-foreground">大小(mm)</label>
                   <input v-model="det.size" class="field-input font-mono" />
                 </div>
                 <div>
@@ -125,8 +124,9 @@
                   </select>
                 </div>
                 <div class="flex items-end">
-                  <button @click="removeDetection(det.id)" class="px-1 py-0.5 text-destructive hover:bg-destructive/10 rounded text-[10px]">
+                  <button @click="removeDetection(det.id)" class="px-2 py-1 text-destructive hover:bg-destructive/10 rounded text-xs flex items-center gap-1">
                     <Trash2 class="w-3 h-3" />
+                    删除
                   </button>
                 </div>
               </div>
@@ -137,31 +137,33 @@
         <!-- Add -->
         <button
           @click="addDetection('甲状腺')"
-          class="w-full mt-1.5 py-1 text-[10px] text-primary hover:bg-primary/5 rounded"
+          class="w-full mt-2 py-1.5 text-xs text-primary hover:bg-primary/5 rounded-lg border border-dashed border-primary/30"
         >
           + 添加病灶
         </button>
       </div>
+    </div>
 
-      <!-- Section 2: Exam Findings (Compact) -->
-      <div class="p-3 border-b border-border">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-xs font-bold text-foreground flex items-center gap-1.5">
-            <FileSearch class="w-3.5 h-3.5 text-primary" />
-            检查所见
-          </h3>
-          <button
-            @click="generateDescription"
-            class="flex items-center gap-1 px-1.5 py-0.5 text-[10px] text-primary bg-primary/10 rounded font-medium hover:bg-primary/20"
-          >
-            <BrainCircuit class="w-3 h-3" />
-            AI生成
-          </button>
-        </div>
+    <!-- Card 2: Exam Findings -->
+    <div class="bg-panel-bg rounded-xl shadow-sm border border-border overflow-hidden shrink-0">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-border">
+        <h2 class="text-sm font-bold text-foreground flex items-center gap-2">
+          <FileSearch class="w-4 h-4 text-primary" />
+          检查所见
+        </h2>
+        <button
+          @click="generateDescription"
+          class="flex items-center gap-1 px-2 py-1 text-xs text-primary bg-primary/10 rounded-md font-medium hover:bg-primary/20"
+        >
+          <BrainCircuit class="w-3.5 h-3.5" />
+          AI生成
+        </button>
+      </div>
 
-        <!-- Thyroid Basic - Super Compact -->
-        <div v-if="store.examFinding.thyroid" class="mb-2 p-1.5 bg-secondary/30 rounded text-[10px]">
-          <div class="grid grid-cols-4 gap-1">
+      <div class="px-4 py-3">
+        <!-- Thyroid Basic - Compact Row -->
+        <div v-if="store.examFinding.thyroid" class="mb-3 p-2 bg-secondary/30 rounded-lg">
+          <div class="grid grid-cols-4 gap-2 text-xs">
             <div>
               <span class="text-muted-foreground">左叶:</span>
               <input v-model="store.examFinding.thyroid.leftLobeSize" class="field-input font-mono" placeholder="48x18x16" />
@@ -193,89 +195,91 @@
         <textarea
           v-model="store.examFinding.description"
           rows="3"
-          class="w-full px-2 py-1.5 rounded border border-input bg-background text-[11px] text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-ring"
-          placeholder="点击AI生成按钮自动生成..."
+          class="w-full px-3 py-2 rounded-lg border border-input bg-background text-xs text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-ring"
+          placeholder="点击AI生成按钮自动生成检查所见..."
         />
       </div>
     </div>
 
-    <!-- Fixed Bottom: Diagnosis Section -->
-    <div class="shrink-0 p-3 bg-card border-t border-border">
-      <div class="flex items-center justify-between mb-2">
-        <h3 class="text-xs font-bold text-foreground flex items-center gap-1.5">
-          <Stethoscope class="w-3.5 h-3.5 text-primary" />
+    <!-- Card 3: Diagnosis -->
+    <div class="bg-panel-bg rounded-xl shadow-sm border border-border overflow-hidden shrink-0">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-border">
+        <h2 class="text-sm font-bold text-foreground flex items-center gap-2">
+          <Stethoscope class="w-4 h-4 text-primary" />
           超声提示
-        </h3>
+        </h2>
         <button
           @click="generateDiagnosis"
-          class="flex items-center gap-1 px-1.5 py-0.5 text-[10px] text-primary bg-primary/10 rounded font-medium hover:bg-primary/20"
+          class="flex items-center gap-1 px-2 py-1 text-xs text-primary bg-primary/10 rounded-md font-medium hover:bg-primary/20"
         >
-          <BrainCircuit class="w-3 h-3" />
+          <BrainCircuit class="w-3.5 h-3.5" />
           AI生成
         </button>
       </div>
 
-      <!-- Diagnosis Text -->
-      <textarea
-        v-model="store.diagnosis"
-        rows="2"
-        class="w-full px-2 py-1.5 rounded border border-input bg-background text-[11px] text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-ring mb-2"
-        placeholder="超声提示内容..."
-      />
+      <div class="px-4 py-3">
+        <!-- Diagnosis Text -->
+        <textarea
+          v-model="store.diagnosis"
+          rows="2"
+          class="w-full px-3 py-2 rounded-lg border border-input bg-background text-xs text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-ring mb-3"
+          placeholder="超声提示内容..."
+        />
 
-      <!-- Recommendation -->
-      <input
-        v-model="store.examFinding.recommendation"
-        class="w-full px-2 py-1.5 rounded border border-input bg-background text-[11px] text-foreground focus:outline-none focus:ring-1 focus:ring-ring mb-2"
-        placeholder="建议：如FNA、定期复查等"
-      />
+        <!-- Recommendation -->
+        <input
+          v-model="store.examFinding.recommendation"
+          class="w-full px-3 py-2 rounded-lg border border-input bg-background text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring mb-3"
+          placeholder="建议：如FNA、定期复查等"
+        />
 
-      <!-- Status Row -->
-      <div class="flex items-center justify-between mb-2">
-        <div class="flex items-center gap-2">
-          <div class="flex items-center gap-1">
-            <AlertTriangle class="w-3 h-3 text-destructive" />
-            <span class="text-[10px] text-foreground">危急值</span>
-            <button
-              class="relative w-7 h-3.5 rounded-full transition-colors"
-              :class="store.isCritical ? 'bg-destructive' : 'bg-muted'"
-              @click="store.isCritical = !store.isCritical"
-            >
-              <span
-                class="absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white shadow transition-transform"
-                :class="store.isCritical ? 'translate-x-3.5' : 'translate-x-0.5'"
-              ></span>
-            </button>
-          </div>
-          <span class="text-border">|</span>
-          <div class="flex items-center gap-1">
-            <button
-              class="px-1.5 py-0.5 rounded text-[10px] font-medium"
-              :class="store.examResult === '阳性' ? 'bg-amber-500 text-white' : 'bg-secondary text-muted-foreground'"
-              @click="store.examResult = '阳性'"
-            >阳性</button>
-            <button
-              class="px-1.5 py-0.5 rounded text-[10px] font-medium"
-              :class="store.examResult === '阴性' ? 'bg-emerald-500 text-white' : 'bg-secondary text-muted-foreground'"
-              @click="store.examResult = '阴性'"
-            >阴性</button>
+        <!-- Status Row -->
+        <div class="flex items-center justify-between mb-3 py-2 px-3 bg-secondary/30 rounded-lg">
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+              <AlertTriangle class="w-4 h-4 text-destructive" />
+              <span class="text-xs text-foreground">危急值</span>
+              <button
+                class="relative w-9 h-5 rounded-full transition-colors"
+                :class="store.isCritical ? 'bg-destructive' : 'bg-muted'"
+                @click="store.isCritical = !store.isCritical"
+              >
+                <span
+                  class="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform"
+                  :class="store.isCritical ? 'translate-x-4' : 'translate-x-0.5'"
+                ></span>
+              </button>
+            </div>
+            <span class="text-border">|</span>
+            <div class="flex items-center gap-1">
+              <button
+                class="px-2.5 py-1 rounded-md text-xs font-medium transition-colors"
+                :class="store.examResult === '阳性' ? 'bg-amber-500 text-white' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'"
+                @click="store.examResult = '阳性'"
+              >阳性</button>
+              <button
+                class="px-2.5 py-1 rounded-md text-xs font-medium transition-colors"
+                :class="store.examResult === '阴性' ? 'bg-emerald-500 text-white' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'"
+                @click="store.examResult = '阴性'"
+              >阴性</button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Action Buttons -->
-      <div class="flex gap-2">
-        <RouterLink
-          to="/report"
-          class="flex-1 flex items-center justify-center gap-1 py-1.5 rounded text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90"
-        >
-          <FileText class="w-3.5 h-3.5" />
-          生成报告
-        </RouterLink>
-        <button class="flex-1 flex items-center justify-center gap-1 py-1.5 rounded text-xs font-medium bg-medical-success text-white hover:opacity-90">
-          <Save class="w-3.5 h-3.5" />
-          保存
-        </button>
+        <!-- Action Buttons -->
+        <div class="flex gap-2">
+          <RouterLink
+            to="/report"
+            class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            <FileText class="w-4 h-4" />
+            生成报告
+          </RouterLink>
+          <button class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium bg-medical-success text-white hover:opacity-90">
+            <Save class="w-4 h-4" />
+            保存
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -285,7 +289,6 @@
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useWorkstationStore } from '@/app/stores/workstation'
-import type { AIDetection } from '@/app/types'
 import {
   BrainCircuit,
   FileSearch,
@@ -426,12 +429,12 @@ function generateDiagnosis() {
 .field-input {
   width: 100%;
   margin-top: 0.125rem;
-  padding: 0.125rem 0.25rem;
-  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
   border: 1px solid hsl(var(--input));
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-size: 10px;
+  font-size: 11px;
 }
 .field-input:focus {
   outline: none;
