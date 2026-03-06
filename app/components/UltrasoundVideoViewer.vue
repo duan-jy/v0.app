@@ -301,9 +301,8 @@ function draw() {
     currentTime.value = `${hh}:${mm}:${ss}`
   }
 
-  if (isPlaying.value || hasVideo.value) {
-    animationId = requestAnimationFrame(draw)
-  }
+  // Always continue animation loop
+  animationId = requestAnimationFrame(draw)
 }
 
 // Draw simulated ultrasound texture
@@ -368,8 +367,17 @@ function drawSimulatedUltrasound(ctx: CanvasRenderingContext2D, width: number, h
 function onFileSelect(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
-  if (file) {
+  if (file && videoRef.value) {
     selectedFile.value = file
+    // Load video for preview
+    const url = URL.createObjectURL(file)
+    videoRef.value.src = url
+    videoRef.value.load()
+    hasVideo.value = true
+    // Start drawing loop
+    if (!animationId) {
+      draw()
+    }
   }
 }
 
@@ -377,10 +385,15 @@ function onFileSelect(event: Event) {
 async function toggleAnalysis() {
   if (webrtc.isRunning.value) {
     webrtc.stop()
-    hasVideo.value = false
-    isPlaying.value = false
+    // Keep video loaded but stop AI analysis
+    if (videoRef.value) {
+      videoRef.value.pause()
+      isPlaying.value = false
+    }
   } else if (selectedFile.value && videoRef.value) {
     const config = store.config
+    // Reset video to start
+    videoRef.value.currentTime = 0
     await webrtc.start(videoRef.value, selectedFile.value, {
       server: config.serverAddress,
       port: String(config.serverPort),
@@ -392,7 +405,6 @@ async function toggleAnalysis() {
     })
     hasVideo.value = true
     isPlaying.value = true
-    draw()
   }
 }
 
@@ -421,7 +433,9 @@ function togglePlay() {
     video.pause()
     isPlaying.value = false
   } else {
-    video.play()
+    video.play().catch(() => {
+      // Ignore play errors (e.g., user interaction required)
+    })
     isPlaying.value = true
   }
 }
@@ -441,6 +455,11 @@ function onVideoLoaded() {
   const video = videoRef.value
   if (video && isFinite(video.duration)) {
     webrtc.updateVideoProgress(0, video.duration)
+    // Auto-play preview
+    video.play().catch(() => {
+      // Ignore autoplay restrictions
+    })
+    isPlaying.value = true
   }
 }
 

@@ -97,12 +97,12 @@ export const useWorkstationStore = defineStore('workstation', () => {
 
   // Config
   const config = ref<SystemConfig>({
-    serverAddress: '192.168.1.100',
-    serverPort: 8080,
+    serverAddress: '10.68.73.23',
+    serverPort: 8000,
     deviceId: 'US-STATION-001',
-    turnServerAddress: 'turn.hospital.local',
-    turnUsername: 'ultrasound',
-    turnPassword: '',
+    turnServerAddress: '10.68.73.23',
+    turnUsername: 'user',
+    turnPassword: 'pass',
     aiConfidenceThreshold: 0.75,
   })
 
