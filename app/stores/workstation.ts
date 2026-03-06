@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Patient, AIDetection, ExamFinding, SystemConfig, ConnectionStatus } from '@/app/types'
+import type { Patient, AIDetection, ExamFinding, SystemConfig, ConnectionStatus, Screenshot } from '@/app/types'
 
 export const useWorkstationStore = defineStore('workstation', () => {
   // Patients
@@ -38,7 +38,7 @@ export const useWorkstationStore = defineStore('workstation', () => {
   const examResult = ref<'阳性' | '阴性'>('阳性')
 
   // Screenshots
-  const screenshots = ref<string[]>([])
+  const screenshots = ref<Screenshot[]>([])
   const frameCount = ref(0)
 
   // Voice
@@ -71,8 +71,34 @@ export const useWorkstationStore = defineStore('workstation', () => {
     currentPatient.value = patient
   }
 
-  function addScreenshot(url: string) {
-    screenshots.value.push(url)
+  function addScreenshot(dataUrl: string, label?: string, organ?: string) {
+    const shot: Screenshot = {
+      id: `shot_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      dataUrl,
+      timestamp: Date.now(),
+      label: label || `截图 ${screenshots.value.length + 1}`,
+      organ,
+    }
+    screenshots.value.push(shot)
+  }
+
+  function replaceScreenshot(id: string, newDataUrl: string) {
+    const idx = screenshots.value.findIndex(s => s.id === id)
+    if (idx !== -1) {
+      screenshots.value[idx].dataUrl = newDataUrl
+      screenshots.value[idx].timestamp = Date.now()
+    }
+  }
+
+  function removeScreenshot(id: string) {
+    screenshots.value = screenshots.value.filter(s => s.id !== id)
+  }
+
+  function updateScreenshotLabel(id: string, label: string) {
+    const shot = screenshots.value.find(s => s.id === id)
+    if (shot) {
+      shot.label = label
+    }
   }
 
   function toggleRecording() {
@@ -105,6 +131,9 @@ export const useWorkstationStore = defineStore('workstation', () => {
     todayStats,
     selectPatient,
     addScreenshot,
+    replaceScreenshot,
+    removeScreenshot,
+    updateScreenshotLabel,
     toggleRecording,
     updateConfig,
   }

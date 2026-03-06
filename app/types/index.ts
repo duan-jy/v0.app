@@ -42,6 +42,14 @@ export interface QualityControlItem {
   status: '待审核' | '已通过' | '已驳回'
 }
 
+export interface Screenshot {
+  id: string
+  dataUrl: string
+  timestamp: number
+  label: string
+  organ?: string
+}
+
 export interface ReportData {
   patientInfo: Patient
   findings: ExamFinding
@@ -49,7 +57,7 @@ export interface ReportData {
   isCritical: boolean
   result: '阳性' | '阴性'
   doctorName: string
-  screenshots: string[]
+  screenshots: Screenshot[]
 }
 
 export interface SystemConfig {

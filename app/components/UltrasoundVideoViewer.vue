@@ -150,13 +150,15 @@
       <!-- Screenshots thumbnails -->
       <div class="flex items-center gap-1.5">
         <div
-          v-for="(shot, idx) in store.screenshots.slice(-4)"
-          :key="idx"
+          v-for="shot in store.screenshots.slice(-4)"
+          :key="shot.id"
           class="w-10 h-8 rounded border border-border bg-video-bg overflow-hidden"
         >
-          <div class="w-full h-full bg-emerald-900/30 flex items-center justify-center text-[8px] text-emerald-400/50 font-mono">
-            {{ idx + 1 }}
-          </div>
+          <img
+            :src="shot.dataUrl"
+            :alt="shot.label"
+            class="w-full h-full object-cover"
+          />
         </div>
         <span v-if="store.screenshots.length > 0" class="text-xs text-muted-foreground ml-1">
           {{ store.screenshots.length }}张
@@ -458,7 +460,24 @@ function onProgressChange(event: Event) {
 
 // Take screenshot
 function takeScreenshot() {
-  store.addScreenshot(`screenshot_${Date.now()}`)
+  const canvas = canvasRef.value
+  if (!canvas) return
+
+  // Create a temporary canvas for the screenshot
+  const tempCanvas = document.createElement('canvas')
+  tempCanvas.width = canvas.width
+  tempCanvas.height = canvas.height
+  const tempCtx = tempCanvas.getContext('2d')
+  if (!tempCtx) return
+
+  // Copy current canvas content
+  tempCtx.drawImage(canvas, 0, 0)
+
+  // Convert to data URL
+  const dataUrl = tempCanvas.toDataURL('image/png')
+  const organ = store.currentPatient?.examPart || '超声'
+  const label = `${organ} 截图 ${store.screenshots.length + 1}`
+  store.addScreenshot(dataUrl, label, organ)
 }
 
 // Canvas click handler
