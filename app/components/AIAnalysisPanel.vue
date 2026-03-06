@@ -599,11 +599,18 @@ function generateDiagnosis() {
 </script>
 
 <style scoped>
-@reference "@/app/globals.css";
-
 .field-input {
-  @apply w-full px-1.5 py-1 rounded border border-input bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring;
+  width: 100%;
   margin-top: 0.125rem;
+  padding: 0.25rem 0.375rem;
+  border-radius: 0.25rem;
+  border: 1px solid hsl(var(--input));
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
   font-size: 11px;
+}
+.field-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px hsl(var(--ring));
 }
 </style>
