@@ -16,7 +16,7 @@
       </div>
     </section>
 
-    <!-- 2. AI Detection Results -->
+    <!-- 2. AI Detection Results - Grouped by Organ -->
     <section class="bg-panel-bg rounded-xl shadow-sm border border-border overflow-hidden">
       <div class="flex items-center gap-2 px-4 py-2.5 border-b border-border">
         <BrainCircuit class="w-4 h-4 text-primary" />
@@ -25,36 +25,130 @@
           {{ store.aiDetections.length }}个发现
         </span>
       </div>
+      
+      <!-- Grouped Tables by Organ -->
       <div class="divide-y divide-border">
         <div
-          v-for="det in store.aiDetections"
-          :key="det.id"
-          class="px-4 py-3"
+          v-for="(items, organ) in groupedDetections"
+          :key="organ"
+          class="px-3 py-3"
         >
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-sm font-semibold text-foreground">{{ det.type }}</span>
-            <span
-              class="text-xs font-mono px-2 py-0.5 rounded-full"
-              :class="det.confidence >= 0.9 ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'"
+          <!-- Organ Header -->
+          <div class="flex items-center gap-2 mb-2">
+            <div class="w-1.5 h-4 rounded-full bg-primary"></div>
+            <span class="text-sm font-semibold text-foreground">{{ organ }}</span>
+            <span class="text-xs text-muted-foreground">({{ items.length }}处病灶)</span>
+            <button 
+              @click="addDetection(organ as string)"
+              class="ml-auto p-1 rounded hover:bg-secondary transition-colors"
+              title="添加病灶"
             >
-              {{ (det.confidence * 100).toFixed(0) }}%
-            </span>
+              <Plus class="w-3.5 h-3.5 text-primary" />
+            </button>
           </div>
-          <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-            <div>
-              <span class="text-muted-foreground">器官: </span>
-              <span class="text-foreground">{{ det.organ }}</span>
-            </div>
-            <div>
-              <span class="text-muted-foreground">位置: </span>
-              <span class="text-foreground">{{ det.location }}</span>
-            </div>
-            <div class="col-span-2">
-              <span class="text-muted-foreground">大小: </span>
-              <span class="text-foreground font-mono">{{ det.size }}</span>
-            </div>
+
+          <!-- Editable Table -->
+          <div class="border border-border rounded-lg overflow-hidden">
+            <table class="w-full text-xs">
+              <thead class="bg-secondary/50">
+                <tr>
+                  <th class="px-2 py-1.5 text-left font-medium text-muted-foreground w-[25%]">类型</th>
+                  <th class="px-2 py-1.5 text-left font-medium text-muted-foreground w-[20%]">位置</th>
+                  <th class="px-2 py-1.5 text-left font-medium text-muted-foreground w-[22%]">大小</th>
+                  <th class="px-2 py-1.5 text-center font-medium text-muted-foreground w-[15%]">置信度</th>
+                  <th class="px-2 py-1.5 text-center font-medium text-muted-foreground w-[13%]">分级</th>
+                  <th class="px-2 py-1.5 w-[5%]"></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                <tr
+                  v-for="det in items"
+                  :key="det.id"
+                  class="hover:bg-secondary/30 transition-colors group"
+                >
+                  <td class="px-2 py-1.5">
+                    <input
+                      v-model="det.type"
+                      class="w-full bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-ring rounded px-1 py-0.5 text-foreground"
+                      placeholder="类型"
+                    />
+                  </td>
+                  <td class="px-2 py-1.5">
+                    <input
+                      v-model="det.location"
+                      class="w-full bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-ring rounded px-1 py-0.5 text-foreground"
+                      placeholder="位置"
+                    />
+                  </td>
+                  <td class="px-2 py-1.5">
+                    <input
+                      v-model="det.size"
+                      class="w-full bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-ring rounded px-1 py-0.5 font-mono text-foreground"
+                      placeholder="尺寸"
+                    />
+                  </td>
+                  <td class="px-2 py-1.5 text-center">
+                    <span
+                      class="inline-block px-1.5 py-0.5 rounded-full text-[10px] font-medium"
+                      :class="getConfidenceClass(det.confidence)"
+                    >
+                      {{ (det.confidence * 100).toFixed(0) }}%
+                    </span>
+                  </td>
+                  <td class="px-2 py-1.5">
+                    <select
+                      v-model="det.grade"
+                      class="w-full bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-ring rounded px-1 py-0.5 text-foreground text-center"
+                    >
+                      <option value="">-</option>
+                      <option value="1">1级</option>
+                      <option value="2">2级</option>
+                      <option value="3">3级</option>
+                      <option value="4a">4a</option>
+                      <option value="4b">4b</option>
+                      <option value="4c">4c</option>
+                      <option value="5">5级</option>
+                    </select>
+                  </td>
+                  <td class="px-1 py-1.5">
+                    <button
+                      @click="removeDetection(det.id)"
+                      class="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 transition-all"
+                      title="删除"
+                    >
+                      <X class="w-3 h-3 text-destructive" />
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
+
+        <!-- Empty State -->
+        <div v-if="Object.keys(groupedDetections).length === 0" class="px-4 py-8 text-center">
+          <div class="flex flex-col items-center gap-2 text-muted-foreground">
+            <Search class="w-8 h-8 opacity-40" />
+            <span class="text-sm">暂无检测结果</span>
+            <button
+              @click="addNewOrganDetection"
+              class="mt-2 px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              + 手动添加
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add New Organ Section -->
+      <div v-if="Object.keys(groupedDetections).length > 0" class="px-3 py-2 border-t border-border">
+        <button
+          @click="addNewOrganDetection"
+          class="w-full flex items-center justify-center gap-1.5 py-1.5 text-xs text-primary hover:bg-primary/5 rounded-lg transition-colors"
+        >
+          <Plus class="w-3.5 h-3.5" />
+          添加其他部位
+        </button>
       </div>
     </section>
 
@@ -177,8 +271,10 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useWorkstationStore } from '@/app/stores/workstation'
+import type { AIDetection } from '@/app/types'
 import {
   History,
   FolderOpen,
@@ -187,7 +283,59 @@ import {
   Stethoscope,
   AlertTriangle,
   Save,
+  Plus,
+  X,
+  Search,
 } from 'lucide-vue-next'
 
 const store = useWorkstationStore()
+
+// Group detections by organ
+const groupedDetections = computed(() => {
+  const groups: Record<string, AIDetection[]> = {}
+  for (const det of store.aiDetections) {
+    if (!groups[det.organ]) {
+      groups[det.organ] = []
+    }
+    groups[det.organ].push(det)
+  }
+  return groups
+})
+
+// Get confidence badge class
+function getConfidenceClass(confidence: number) {
+  if (confidence >= 0.9) return 'bg-emerald-100 text-emerald-700'
+  if (confidence >= 0.75) return 'bg-amber-100 text-amber-700'
+  return 'bg-red-100 text-red-700'
+}
+
+// Add new detection to existing organ
+function addDetection(organ: string) {
+  const newId = `det-${Date.now()}`
+  store.aiDetections.push({
+    id: newId,
+    organ,
+    location: '',
+    size: '',
+    confidence: 0,
+    type: '',
+    grade: '',
+  })
+}
+
+// Add detection for new organ
+function addNewOrganDetection() {
+  const organName = prompt('请输入检查部位名称:', '肝脏')
+  if (organName && organName.trim()) {
+    addDetection(organName.trim())
+  }
+}
+
+// Remove detection
+function removeDetection(id: string) {
+  const index = store.aiDetections.findIndex(d => d.id === id)
+  if (index !== -1) {
+    store.aiDetections.splice(index, 1)
+  }
+}
 </script>
