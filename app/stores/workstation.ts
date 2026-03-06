@@ -16,7 +16,7 @@ export const useWorkstationStore = defineStore('workstation', () => {
   const currentPatient = ref<Patient | null>(patients.value[0])
 
   // AI
-  const connectionStatus = ref<ConnectionStatus>('已连接')
+  const connectionStatus = ref<ConnectionStatus>('未连接')
   const aiDetections = ref<AIDetection[]>([
     { id: '1', organ: '甲状腺', location: '右叶中部', size: '8.2mm x 5.1mm', confidence: 0.94, type: '低回声结节' },
     { id: '2', organ: '甲状腺', location: '左叶下极', size: '4.5mm x 3.2mm', confidence: 0.87, type: '囊性结节' },

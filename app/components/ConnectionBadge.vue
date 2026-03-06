@@ -20,6 +20,9 @@ const badgeClass = computed(() => {
   switch (props.status) {
     case '已连接': return 'bg-emerald-50 text-emerald-700'
     case 'AI分析中': return 'bg-blue-50 text-blue-700'
+    case '连接中': return 'bg-amber-50 text-amber-700'
+    case '连接错误':
+    case '已断开':
     case '未连接': return 'bg-red-50 text-red-700'
     default: return 'bg-secondary text-secondary-foreground'
   }
@@ -29,6 +32,9 @@ const dotClass = computed(() => {
   switch (props.status) {
     case '已连接': return 'bg-emerald-500'
     case 'AI分析中': return 'bg-blue-500 animate-pulse'
+    case '连接中': return 'bg-amber-500 animate-pulse'
+    case '连接错误':
+    case '已断开':
     case '未连接': return 'bg-red-500'
     default: return 'bg-muted-foreground'
   }

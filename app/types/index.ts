@@ -16,7 +16,10 @@ export interface AIDetection {
   size: string
   confidence: number
   type: string
+  grade?: string
 }
+
+export type ConnectionStatus = '未连接' | '已连接' | '连接中' | '连接错误' | '已断开' | 'AI分析中'
 
 export interface ExamFinding {
   organ: string
@@ -59,4 +62,4 @@ export interface SystemConfig {
   aiConfidenceThreshold: number
 }
 
-export type ConnectionStatus = '未连接' | '已连接' | 'AI分析中'
+
